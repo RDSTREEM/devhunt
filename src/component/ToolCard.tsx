@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { db } from '@/lib/firebase'
+import { doc, updateDoc, increment } from 'firebase/firestore'
 
 type Tool = {
   id: string
@@ -12,9 +14,16 @@ type Tool = {
 export default function ToolCard({ tool }: { tool: Tool }) {
   const [upvotes, setUpvotes] = useState(tool.upvotes)
 
-  const handleUpvote = () => {
+  const handleUpvote = async () => {
     setUpvotes(upvotes + 1)
-    // TODO: Integrate with backend to persist upvote
+    try {
+      const toolRef = doc(db, 'tools', tool.id)
+      await updateDoc(toolRef, { upvotes: increment(1) })
+    } catch (err) {
+      // Optionally revert UI if error
+      setUpvotes(upvotes)
+      alert('Failed to upvote. Please try again.')
+    }
   }
 
   return (
