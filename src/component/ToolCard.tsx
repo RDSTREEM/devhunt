@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useAuth } from '@/component/AuthContext'
 import { db } from '@/lib/firebase'
 import { doc, updateDoc, increment } from 'firebase/firestore'
 
@@ -13,14 +14,18 @@ type Tool = {
 
 export default function ToolCard({ tool }: { tool: Tool }) {
   const [upvotes, setUpvotes] = useState(tool.upvotes)
+  const { user, signIn } = useAuth()
 
   const handleUpvote = async () => {
+    if (!user) {
+      alert('You must be signed in to upvote.')
+      return
+    }
     setUpvotes(upvotes + 1)
     try {
       const toolRef = doc(db, 'tools', tool.id)
       await updateDoc(toolRef, { upvotes: increment(1) })
     } catch (err) {
-      // Optionally revert UI if error
       setUpvotes(upvotes)
       alert('Failed to upvote. Please try again.')
     }
