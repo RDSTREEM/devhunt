@@ -1,6 +1,8 @@
-import { useState } from "react"
+import React, { useState } from "react";
+import { useAuth } from "./AuthContext";
 
 export default function ToolSubmitForm({ onSubmit }: { onSubmit?: (tool: any) => void }) {
+  const { user, signIn } = useAuth()
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -8,6 +10,20 @@ export default function ToolSubmitForm({ onSubmit }: { onSubmit?: (tool: any) =>
     tags: "",
   })
   const [submitting, setSubmitting] = useState(false)
+
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto p-4 border rounded bg-white shadow text-center">
+        <p className="mb-4">You must be signed in to submit a tool.</p>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          onClick={signIn}
+        >
+          Sign In with Google
+        </button>
+      </div>
+    )
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
